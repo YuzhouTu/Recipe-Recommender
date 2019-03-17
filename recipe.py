@@ -36,21 +36,23 @@ def cos_sim(k_1, k_2):
 		return np.dot(v_1, v_2)/(np.linalg.norm(v_1) * np.linalg.norm(v_2))
 	else:
 		return 0
-def get_fast_sim(dic1,dic2,main=True):
+def get_fast_sim(dic1, dic2, main=True):
+	
 	for k in dic1.keys():
 		if k not in dic2.keys():
 			dic2[k] = 0
 	for k in dic2.keys():
 		if k not in dic1.keys():
 			dic1[k] = 0
+	
 	if main:
 		upper = sum([min(dic1[k], dic2[k])*np.log(prob[k]) for k in list(set(dic1).intersection(dic2))])
 		lower = sum([max(dic1[k], dic2[k])*np.log(prob[k]) for k in list(set(dic1).union(dic2))])
-		return upper/lower if lower != 0 else 0
 	else:
 		upper = sum([min(dic1[k], dic2[k])*np.log(1-prob[k]) for k in list(set(dic1).intersection(dic2))])
 		lower = sum([max(dic1[k], dic2[k])*np.log(1-prob[k]) for k in list(set(dic1).union(dic2))])
-		return upper/lower if lower != 0 else 0
+		
+	return min(upper/lower, 1) if lower != 0 else 0
 
 def get_slow_sim(dic1, dic2, main=True):
 	name_1 = list(dic1.keys())
@@ -86,13 +88,13 @@ def get_slow_sim(dic1, dic2, main=True):
 		upper = sum([min_w[i]*log_prob[i]*sim[i] for i in range(n)])
 		lower = sum([max_w[i]*log_prob[i] for i in range(n)])
 		lower += 2*sum([dic[k]*np.log(prob[k]) for k in unpaired])
-		return upper/lower if lower != 0 else 0
 	else:
 		log_inv_prob = [np.log((1-prob[l_1[i]])*(1-prob[l_2[i]])) for i in range(n)]
 		upper = sum([min_w[i]*log_inv_prob[i]*sim[i] for i in range(n)])
 		lower = sum([max_w[i]*log_inv_prob[i] for i in range(n)])
 		lower += 2*sum([dic[k]*np.log(1 - prob[k]) for k in unpaired])
-		return upper/lower if lower != 0 else 0
+	
+	return min(upper/lower, 1) if lower != 0 else 0
 
 class recipe():
 	
